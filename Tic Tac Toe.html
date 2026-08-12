@@ -13,6 +13,10 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
     margin: 0;
     min-height: 100vh;
@@ -20,6 +24,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 16px;
 
     background:
         radial-gradient(circle at 50% 55%, #25134d 0%, #09051a 55%, #03020b 100%);
@@ -77,16 +82,17 @@ body::before {
 
 /* =========================
    GAME CONTAINER
+   (sized with clamp()/vh instead of a blanket
+   transform:scale so it fits laptop screens
+   without ever overflowing or getting tiny)
 ========================= */
 
 .game {
-    width: min(95vw, 850px);
+    width: min(90vw, 480px);
+    max-height: 94vh;
     text-align: center;
     position: relative;
     z-index: 2;
-
-    transform: scale(0.67);
-    transform-origin: center center;
 }
 
 /* =========================
@@ -94,16 +100,16 @@ body::before {
 ========================= */
 
 .title {
-    font-size: clamp(28px, 7vw, 64px);
-    margin-bottom: 25px;
-    line-height: 1.2;
+    font-size: clamp(18px, 4vw, 32px);
+    margin: 0 0 16px;
+    line-height: 1.3;
 
     color: #43e8ff;
 
     text-shadow:
-        5px 5px 0 #9b3cff,
-        0 0 10px #43e8ff,
-        0 0 25px #43e8ff;
+        3px 3px 0 #9b3cff,
+        0 0 8px #43e8ff,
+        0 0 18px #43e8ff;
 
     animation: titleGlow 2s infinite alternate;
 }
@@ -124,16 +130,16 @@ body::before {
 .top {
     display: grid;
     grid-template-columns: 1fr 1.5fr 1fr;
-    gap: 15px;
+    gap: 10px;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 16px;
 }
 
 .panel {
-    padding: 18px 10px;
-    border: 4px solid;
+    padding: 12px 6px;
+    border: 3px solid;
     background: rgba(5, 4, 25, .85);
-    box-shadow: 0 0 15px currentColor;
+    box-shadow: 0 0 12px currentColor;
 }
 
 .player-x {
@@ -147,16 +153,18 @@ body::before {
 }
 
 .panel-title {
-    font-size: 11px;
-    margin-bottom: 12px;
+    font-size: 9px;
+    margin-bottom: 8px;
 }
 
 .score {
-    font-size: 28px;
+    font-size: 20px;
 }
 
 .status {
-    min-height: 75px;
+    min-height: 55px;
+    font-size: 11px;
+    padding: 8px 4px;
 
     display: flex;
     justify-content: center;
@@ -171,9 +179,9 @@ body::before {
 ========================= */
 
 .board-wrapper {
-    padding: 12px;
+    padding: 8px;
 
-    border: 5px solid #a96cff;
+    border: 4px solid #a96cff;
 
     background:
         repeating-linear-gradient(
@@ -186,8 +194,8 @@ body::before {
 
     box-shadow:
         0 0 10px #9b5cff,
-        0 0 30px rgba(155, 92, 255, .7),
-        inset 0 0 20px #050313;
+        0 0 25px rgba(155, 92, 255, .7),
+        inset 0 0 18px #050313;
 }
 
 /* Board itself */
@@ -203,7 +211,7 @@ body::before {
 .cell {
     position: relative;
 
-    border: 3px solid #805cff;
+    border: 2px solid #805cff;
     background:
         radial-gradient(
             circle,
@@ -214,7 +222,7 @@ body::before {
     color: white;
 
     font-family: "Press Start 2P", monospace;
-    font-size: clamp(40px, 10vw, 80px);
+    font-size: clamp(24px, 6vw, 44px);
 
     cursor: pointer;
 
@@ -228,7 +236,7 @@ body::before {
     background: #191440;
 
     box-shadow:
-        inset 0 0 25px rgba(0, 255, 255, .25);
+        inset 0 0 20px rgba(0, 255, 255, .25);
 
     transform: scale(.97);
 }
@@ -240,8 +248,8 @@ body::before {
 
     text-shadow:
         0 0 5px #39eaff,
-        0 0 15px #39eaff,
-        0 0 30px #39eaff;
+        0 0 12px #39eaff,
+        0 0 24px #39eaff;
 
     animation: pop .2s ease-out;
 }
@@ -253,8 +261,8 @@ body::before {
 
     text-shadow:
         0 0 5px #ff477e,
-        0 0 15px #ff477e,
-        0 0 30px #ff477e;
+        0 0 12px #ff477e,
+        0 0 24px #ff477e;
 
     animation: pop .2s ease-out;
 }
@@ -290,8 +298,8 @@ body::before {
 
     to {
         box-shadow:
-            inset 0 0 35px #ffe34d,
-            0 0 20px #ffe34d;
+            inset 0 0 30px #ffe34d,
+            0 0 18px #ffe34d;
     }
 }
 
@@ -300,18 +308,18 @@ body::before {
 ========================= */
 
 .restart {
-    margin-top: 25px;
+    margin-top: 16px;
 
-    padding: 18px 30px;
+    padding: 12px 22px;
 
-    border: 4px solid #ffd447;
+    border: 3px solid #ffd447;
 
     background: #0b0820;
 
     color: #ffd447;
 
     font-family: "Press Start 2P", monospace;
-    font-size: 14px;
+    font-size: 11px;
 
     cursor: pointer;
 
@@ -326,9 +334,9 @@ body::before {
     color: #080515;
 
     box-shadow:
-        0 0 25px #ffd447;
+        0 0 20px #ffd447;
 
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 }
 
 .restart:active {
@@ -340,14 +348,14 @@ body::before {
 ========================= */
 
 .footer {
-    margin-top: 25px;
+    margin-top: 16px;
 
     color: #45eaff;
 
-    font-size: 10px;
+    font-size: 8px;
     line-height: 2;
 
-    text-shadow: 0 0 8px #45eaff;
+    text-shadow: 0 0 6px #45eaff;
 }
 
 /* =========================
@@ -411,10 +419,66 @@ body::before {
 }
 
 /* =========================
+   SMALL LAPTOP / SHORT VIEWPORTS
+   (kicks in when vertical space is tight —
+   typical 13"-14" laptop windows)
+========================= */
+
+@media (max-height: 760px) {
+
+    .title {
+        font-size: clamp(16px, 3vw, 26px);
+        margin-bottom: 10px;
+    }
+
+    .top {
+        margin-bottom: 10px;
+        gap: 8px;
+    }
+
+    .panel {
+        padding: 8px 6px;
+    }
+
+    .panel-title {
+        font-size: 8px;
+        margin-bottom: 5px;
+    }
+
+    .score {
+        font-size: 16px;
+    }
+
+    .status {
+        min-height: 42px;
+        font-size: 9px;
+    }
+
+    .board-wrapper {
+        padding: 6px;
+    }
+
+    .cell {
+        font-size: clamp(20px, 5vw, 34px);
+    }
+
+    .restart {
+        margin-top: 10px;
+        padding: 9px 16px;
+        font-size: 9px;
+    }
+
+    .footer {
+        margin-top: 10px;
+        font-size: 7px;
+    }
+}
+
+/* =========================
    MOBILE
 ========================= */
 
-@media (max-width: 650px) {
+@media (max-width: 480px) {
 
     .game {
         width: 94vw;
@@ -427,31 +491,6 @@ body::before {
 
     .status {
         order: -1;
-    }
-
-    .panel {
-        padding: 12px;
-    }
-
-    .panel-title {
-        font-size: 9px;
-    }
-
-    .score {
-        font-size: 20px;
-    }
-
-    .board-wrapper {
-        padding: 7px;
-    }
-
-    .cell {
-        border-width: 2px;
-    }
-
-    .restart {
-        font-size: 10px;
-        padding: 15px 20px;
     }
 
     .footer {
