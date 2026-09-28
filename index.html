@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro Tic Tac Toe</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+
+    background:
+        radial-gradient(circle at 50% 55%, #25134d 0%, #09051a 55%, #03020b 100%);
+
+    color: white;
+    font-family: "Press Start 2P", monospace;
+}
+
+/* =========================
+   BACKGROUND
+========================= */
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            transparent 95%,
+            rgba(0, 255, 255, 0.08) 96%
+        );
+
+    background-size: 100% 5px;
+    z-index: 10;
+}
+
+.stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+.star {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #ffd84d;
+    box-shadow: 0 0 8px #ffd84d;
+    animation: blink 1.5s infinite alternate;
+}
+
+.star:nth-child(1) { left: 8%; top: 15%; }
+.star:nth-child(2) { left: 18%; top: 25%; }
+.star:nth-child(3) { left: 85%; top: 18%; }
+.star:nth-child(4) { left: 92%; top: 35%; }
+.star:nth-child(5) { left: 75%; top: 12%; }
+.star:nth-child(6) { left: 30%; top: 8%; }
+
+@keyframes blink {
+    from { opacity: .25; }
+    to { opacity: 1; }
+}
+
+/* =========================
+   GAME CONTAINER
+   (sized with clamp()/vh instead of a blanket
+   transform:scale so it fits laptop screens
+   without ever overflowing or getting tiny)
+========================= */
+
+.game {
+    width: min(90vw, 480px);
+    max-height: 94vh;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* =========================
+   TITLE
+========================= */
+
+.title {
+    font-size: clamp(18px, 4vw, 32px);
+    margin: 0 0 16px;
+    line-height: 1.3;
+
+    color: #43e8ff;
+
+    text-shadow:
+        3px 3px 0 #9b3cff,
+        0 0 8px #43e8ff,
+        0 0 18px #43e8ff;
+
+    animation: titleGlow 2s infinite alternate;
+}
+
+@keyframes titleGlow {
+    from {
+        filter: brightness(.9);
+    }
+    to {
+        filter: brightness(1.25);
+    }
+}
+
+/* =========================
+   SCORE / STATUS
+========================= */
+
+.top {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.panel {
+    padding: 12px 6px;
+    border: 3px solid;
+    background: rgba(5, 4, 25, .85);
+    box-shadow: 0 0 12px currentColor;
+}
+
+.player-x {
+    color: #37eaff;
+    border-color: #37eaff;
+}
+
+.player-o {
+    color: #ff477e;
+    border-color: #ff477e;
+}
+
+.panel-title {
+    font-size: 9px;
+    margin-bottom: 8px;
+}
+
+.score {
+    font-size: 20px;
+}
+
+.status {
+    min-height: 55px;
+    font-size: 11px;
+    padding: 8px 4px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: #42efff;
+    border-color: #784cff;
+}
+
+/* =========================
+   BOARD
+========================= */
+
+.board-wrapper {
+    padding: 8px;
+
+    border: 4px solid #a96cff;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            #0b0924,
+            #0b0924 5px,
+            #0f0c2e 5px,
+            #0f0c2e 10px
+        );
+
+    box-shadow:
+        0 0 10px #9b5cff,
+        0 0 25px rgba(155, 92, 255, .7),
+        inset 0 0 18px #050313;
+}
+
+/* Board itself */
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    aspect-ratio: 1;
+}
+
+/* Cells */
+
+.cell {
+    position: relative;
+
+    border: 2px solid #805cff;
+    background:
+        radial-gradient(
+            circle,
+            #12102d 0%,
+            #08071d 100%
+        );
+
+    color: white;
+
+    font-family: "Press Start 2P", monospace;
+    font-size: clamp(24px, 6vw, 44px);
+
+    cursor: pointer;
+
+    transition:
+        transform .1s,
+        background .2s,
+        box-shadow .2s;
+}
+
+.cell:hover {
+    background: #191440;
+
+    box-shadow:
+        inset 0 0 20px rgba(0, 255, 255, .25);
+
+    transform: scale(.97);
+}
+
+/* X */
+
+.cell.x {
+    color: #39eaff;
+
+    text-shadow:
+        0 0 5px #39eaff,
+        0 0 12px #39eaff,
+        0 0 24px #39eaff;
+
+    animation: pop .2s ease-out;
+}
+
+/* O */
+
+.cell.o {
+    color: #ff477e;
+
+    text-shadow:
+        0 0 5px #ff477e,
+        0 0 12px #ff477e,
+        0 0 24px #ff477e;
+
+    animation: pop .2s ease-out;
+}
+
+@keyframes pop {
+    0% {
+        transform: scale(.3);
+    }
+
+    70% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Winning cells */
+
+.cell.win {
+    background: #30235e;
+
+    animation:
+        winner .5s infinite alternate;
+}
+
+@keyframes winner {
+    from {
+        box-shadow:
+            inset 0 0 10px #ffe34d;
+    }
+
+    to {
+        box-shadow:
+            inset 0 0 30px #ffe34d,
+            0 0 18px #ffe34d;
+    }
+}
+
+/* =========================
+   RESTART
+========================= */
+
+.restart {
+    margin-top: 16px;
+
+    padding: 12px 22px;
+
+    border: 3px solid #ffd447;
+
+    background: #0b0820;
+
+    color: #ffd447;
+
+    font-family: "Press Start 2P", monospace;
+    font-size: 11px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 0 10px #ffd447;
+
+    transition: .15s;
+}
+
+.restart:hover {
+    background: #ffd447;
+    color: #080515;
+
+    box-shadow:
+        0 0 20px #ffd447;
+
+    transform: translateY(-2px);
+}
+
+.restart:active {
+    transform: translateY(2px);
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+    margin-top: 16px;
+
+    color: #45eaff;
+
+    font-size: 8px;
+    line-height: 2;
+
+    text-shadow: 0 0 6px #45eaff;
+}
+
+/* =========================
+   RETRO SUN
+========================= */
+
+.sun {
+    position: fixed;
+
+    width: 180px;
+    height: 180px;
+
+    left: 50%;
+    bottom: -50px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            #ffdd45 0px,
+            #ff9d3c 10px,
+            #ff477e 20px
+        );
+
+    box-shadow:
+        0 0 30px #ff477e,
+        0 0 70px rgba(255, 71, 126, .5);
+
+    z-index: -2;
+}
+
+/* =========================
+   SYNTHWAVE GRID
+========================= */
+
+.grid-floor {
+    position: fixed;
+
+    left: -20%;
+    right: -20%;
+    bottom: -30px;
+
+    height: 180px;
+
+    background:
+        linear-gradient(#8b38ff 2px, transparent 2px),
+        linear-gradient(90deg, #8b38ff 2px, transparent 2px);
+
+    background-size: 45px 25px;
+
+    transform:
+        perspective(250px)
+        rotateX(55deg);
+
+    opacity: .35;
+
+    z-index: -1;
+}
+
+/* =========================
+   SMALL LAPTOP / SHORT VIEWPORTS
+   (kicks in when vertical space is tight —
+   typical 13"-14" laptop windows)
+========================= */
+
+@media (max-height: 760px) {
+
+    .title {
+        font-size: clamp(16px, 3vw, 26px);
+        margin-bottom: 10px;
+    }
+
+    .top {
+        margin-bottom: 10px;
+        gap: 8px;
+    }
+
+    .panel {
+        padding: 8px 6px;
+    }
+
+    .panel-title {
+        font-size: 8px;
+        margin-bottom: 5px;
+    }
+
+    .score {
+        font-size: 16px;
+    }
+
+    .status {
+        min-height: 42px;
+        font-size: 9px;
+    }
+
+    .board-wrapper {
+        padding: 6px;
+    }
+
+    .cell {
+        font-size: clamp(20px, 5vw, 34px);
+    }
+
+    .restart {
+        margin-top: 10px;
+        padding: 9px 16px;
+        font-size: 9px;
+    }
+
+    .footer {
+        margin-top: 10px;
+        font-size: 7px;
+    }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 480px) {
+
+    .game {
+        width: 94vw;
+    }
+
+    .top {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .status {
+        order: -1;
+    }
+
+    .footer {
+        font-size: 7px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="stars">
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+</div>
+
+<div class="sun"></div>
+<div class="grid-floor"></div>
+
+<main class="game">
+
+    <h1 class="title">TIC TAC TOE</h1>
+
+    <section class="top">
+
+        <div class="panel player-x">
+            <div class="panel-title">PLAYER X</div>
+            <div class="score" id="scoreX">0</div>
+        </div>
+
+        <div class="panel status" id="status">
+            X'S TURN
+        </div>
+
+        <div class="panel player-o">
+            <div class="panel-title">PLAYER O</div>
+            <div class="score" id="scoreO">0</div>
+        </div>
+
+    </section>
+
+    <div class="board-wrapper">
+
+        <div class="board">
+
+            <button class="cell" data-index="0"></button>
+            <button class="cell" data-index="1"></button>
+            <button class="cell" data-index="2"></button>
+
+            <button class="cell" data-index="3"></button>
+            <button class="cell" data-index="4"></button>
+            <button class="cell" data-index="5"></button>
+
+            <button class="cell" data-index="6"></button>
+            <button class="cell" data-index="7"></button>
+            <button class="cell" data-index="8"></button>
+
+        </div>
+
+    </div>
+
+    <button class="restart" id="restart">
+        RESTART GAME
+    </button>
+
+    <div class="footer">
+        ★ 2 PLAYERS ★ RETRO MODE ★ HAVE FUN! ★
+    </div>
+
+</main>
+
+<script>
+
+const cells = document.querySelectorAll(".cell");
+const status = document.getElementById("status");
+
+const scoreX = document.getElementById("scoreX");
+const scoreO = document.getElementById("scoreO");
+
+const restart = document.getElementById("restart");
+
+let board = [
+    "", "", "",
+    "", "", "",
+    "", "", ""
+];
+
+let currentPlayer = "X";
+let gameOver = false;
+
+let scores = {
+    X: 0,
+    O: 0
+};
+
+const winningPatterns = [
+
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+
+    [0, 4, 8],
+    [2, 4, 6]
+
+];
+
+/* =========================
+   PLAYER MOVE
+========================= */
+
+cells.forEach((cell) => {
+
+    cell.addEventListener("click", () => {
+
+        const index = Number(cell.dataset.index);
+
+        if (gameOver) return;
+
+        if (board[index] !== "") return;
+
+        board[index] = currentPlayer;
+
+        cell.textContent = currentPlayer;
+
+        cell.classList.add(
+            currentPlayer === "X" ? "x" : "o"
+        );
+
+        checkGame();
+
+    });
+
+});
+
+/* =========================
+   CHECK GAME
+========================= */
+
+function checkGame() {
+
+    for (const pattern of winningPatterns) {
+
+        const [a, b, c] = pattern;
+
+        if (
+            board[a] !== "" &&
+            board[a] === board[b] &&
+            board[b] === board[c]
+        ) {
+
+            gameOver = true;
+
+            pattern.forEach(index => {
+                cells[index].classList.add("win");
+            });
+
+            scores[currentPlayer]++;
+
+            scoreX.textContent = scores.X;
+            scoreO.textContent = scores.O;
+
+            status.textContent =
+                currentPlayer + " WINS! ★";
+
+            return;
+        }
+    }
+
+    /* DRAW */
+
+    if (!board.includes("")) {
+
+        gameOver = true;
+
+        status.textContent = "DRAW! ★";
+
+        return;
+    }
+
+    /* CHANGE PLAYER */
+
+    currentPlayer =
+        currentPlayer === "X" ? "O" : "X";
+
+    status.textContent =
+        currentPlayer + "'S TURN";
+
+}
+
+/* =========================
+   RESTART
+========================= */
+
+restart.addEventListener("click", () => {
+
+    board = [
+        "", "", "",
+        "", "", "",
+        "", "", ""
+    ];
+
+    currentPlayer = "X";
+    gameOver = false;
+
+    cells.forEach(cell => {
+
+        cell.textContent = "";
+
+        cell.classList.remove(
+            "x",
+            "o",
+            "win"
+        );
+
+    });
+
+    status.textContent = "X'S TURN";
+
+});
+
+</script>
+
+</body>
+</html>
